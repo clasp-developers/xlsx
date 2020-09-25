@@ -20,11 +20,10 @@
      collect (xmls:xmlrep-string-child x)))
 
 (defun get-number-formats (zip)
-  (let ((format-codes (loop for fmt in (xmls:xmlrep-find-child-tags
-					:numFmt (xmls:xmlrep-find-child-tag
-						 :numFmts (get-entry "xl/styles.xml" zip) nil))
-			 collect (cons (parse-integer (xmls:xmlrep-attrib-value "numFmtId" fmt))
-				       (xmls:xmlrep-attrib-value "formatCode" fmt)))))
+  (let* ((fmts (xmls:xmlrep-find-child-tag :numFmts (get-entry "xl/styles.xml" zip) nil))
+         (format-codes (when fmts (loop for fmt in (xmls:xmlrep-find-child-tags :numFmt fmts)
+			                collect (cons (parse-integer (xmls:xmlrep-attrib-value "numFmtId" fmt))
+				                      (xmls:xmlrep-attrib-value "formatCode" fmt))))))
     (loop for style in (xmls:xmlrep-find-child-tags
 			:xf (xmls:xmlrep-find-child-tag
 			     :cellXfs (get-entry "xl/styles.xml" zip)))
